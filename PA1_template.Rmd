@@ -1,0 +1,69 @@
+---
+title: "PA1_template.Rmd"
+author: "Assessment 1"
+date: "18 October 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The average daily activity pattern
+
+```{r }
+if (!file.exists("data")) {
+  
+    download.file("http://d396qusza40orc.cloudfront.net/repdata/data/activity.zip", destfile = "data/data_activity.zip")
+    unzip("data/data_activity.zip")
+    unzip("data/data_activity.zip", exdir = "data")
+}
+```
+```{r data, echo=FALSE}
+
+data = read.csv("data/activity.csv")
+subdata = data[!is.na(data$steps), ]
+
+num.steps.date = aggregate(subdata$steps, list(subdata$date), sum)
+colnames(num.steps.date) = c("date", "steps")
+
+library(ggplot2)
+#hist
+ggplot(data=num.steps.date, aes(x=steps)) +
+  geom_histogram(fill="98888110") +  
+  ggtitle("Steps Taken per Day") +
+  labs(x="Steps per Day", y="#times in a day")
+  
+```
+
+## What is the average daily activity pattern?
+```{r, echo= FALSE}
+steps_per_interval = aggregate(subdata$steps, 
+                                by = list(interval = as.factor(subdata$interval)),
+                                FUN=mean, na.rm=TRUE)
+                        
+steps_per_interval$interval = 
+        as.integer(levels(steps_per_interval$interval)[steps_per_interval$interval])
+
+colnames(steps_per_interval) = c("interval", "steps")
+            
+ggplot(data=steps_per_interval, aes(x= interval, y=steps)) + 
+    geom_line()
+```
+
+## Imputing missing values
+```{r, echo= FALSE}
+
+new.num.steps.date = aggregate(data$steps, list(data$date), sum)
+colnames(new.num.steps.date) = c("date", "steps")
+
+library(ggplot2)
+#list
+ggplot(data=new.num.steps.date, aes(x=steps)) +
+  geom_histogram(fill="111111") +  
+  ggtitle("Steps Taken per Day") +
+  labs(x="Steps per Day", y="times in a day")
+```
+
+
+
